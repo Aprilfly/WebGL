@@ -109,10 +109,12 @@ and one output in the form of a varying variable called vColor.*/
         }
 
         gl.useProgram(shaderProgram);
-
+        /*they are how we get a reference to the attributes that we want to pass to the vertex shader for each vertex*/
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
+        /*The remainder of the changes in this lesson are in initBuffers, which now needs to set up buffers
+        for both the vertex positions and the vertex colours, and in drawScene, which needs to pass both of
+        these up to WebGL.*/
         shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
         gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
@@ -146,7 +148,11 @@ and one output in the form of a varying variable called vColor.*/
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
         triangleVertexPositionBuffer.itemSize = 3;
         triangleVertexPositionBuffer.numItems = 3;
-
+        
+        /* their colours are specified as four elements each — red, green, blue and alpha. Alpha, 
+        if you’re not familiar with it, is a measure of opaqueness (0 is transparent, 1 totally opaque)*/
+        /*This change in the number of elements per item in the buffer necessitates a change to the itemSize
+        that we associate with it.*/
         triangleVertexColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
         var colors = [
