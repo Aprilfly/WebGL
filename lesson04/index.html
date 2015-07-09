@@ -265,6 +265,8 @@
                 unpackedColors = unpackedColors.concat(color);
             }
         }
+        /*The colour buffer is marginally more complex, because we use a loop to create a
+        list of vertex colours so that we don’t have to specify each colour four times, one for each vertex:*/
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
         cubeVertexColorBuffer.itemSize = 4;
         cubeVertexColorBuffer.numItems = 24;
@@ -327,6 +329,11 @@
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
         setMatrixUniforms();
         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        /*The final option is to specify the cube as six squares, each made up of of two triangles,
+        but to send that all over to WebGL to be drawn in one go. This is similar to the way we would 
+        have done it with a triangle strip, but because we’re specifying the triangles in their entirety
+        each time rather than simply defining each triangle by adding a single point on to the previous one,
+        it’s easier to specify the per-side colours. It also has the advantage that the neatest way to code it */
 
         mvPopMatrix();
 
