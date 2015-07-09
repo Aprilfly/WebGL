@@ -200,6 +200,9 @@
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
         setMatrixUniforms();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+        /*Draw the points.  What, you may ask, is a triangle strip?  Well, it’s a strip of triangles :-)   
+        More usefully, it’s a strip of triangles where the first three vertices you give specify the first 
+        triangle, then the last two of those vertices plus the next one specify the next triangle, and so on.*/
     }
 
 
