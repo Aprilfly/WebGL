@@ -5,7 +5,7 @@
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
 <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
-<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="webgl-utils.js">/*AnimateRequest*/</script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
@@ -196,7 +196,8 @@
     }
 
 
-
+    /*These are used to track the rotation of the triangle and the square respectively
+     They both start off rotated by zero degrees, and then over time these numbers will increase */
     var rTri = 0;
     var rSquare = 0;
 
@@ -209,8 +210,14 @@
         mat4.identity(mvMatrix);
 
         mat4.translate(mvMatrix, [-1.5, 0.0, -7.0]);
-
+        /*Obviously what is required is some way of storing the state of the model-view matrix before you start drawing
+        the robot, and restoring it afterwards. This is, of course, what mvPushMatrix and mvPopMatrix do. mvPushMatrix
+        puts the matrix onto a stack, and mvPopMatrix gets rid of the current matrix, takes one from the top of the stack,
+        and restores it. Using a stack means that we can have any number of bits of nested drawing code, each of which manipulates
+        the model-view matrix and then restores it afterwards.*/
         mvPushMatrix();
+        /*we’re changing our current rotation state as stored in the model-view matrix, rotating by rTri degrees around the vertical axis (which is specified by the vector in the third parameter). 
+        This means that when the triangle is drawn, it will be rotated by rTri degrees. */
         mat4.rotate(mvMatrix, degToRad(rTri), [0, 1, 0]);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
@@ -221,7 +228,7 @@
 
         setMatrixUniforms();
         gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
-        mvPopMatrix();
+        mvPopMatrix();/*So, these three changes make the triangle rotate around the vertical axis through its centre without affecting the square.*/
 
 
         mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
@@ -255,7 +262,13 @@
         lastTime = timeNow;
     }
 
-
+    /*The first line is where tick arranges to be called again when a repaint is needed next.
+    requestAnimFrame is a function in some Google-provided code that we’re including into this 
+    web page with a <script> tag at the top, webgl-utils.js. It gives us a browser-independent
+    way of asking the browser to call us back next time it wants to repaint the WebGL scene — 
+    for example, next time the computer’s display is refreshing itself. Right now, functions to
+    do this exist in all WebGL-supporting browsers, but they have different names for it (for example, 
+    Firefox has a function called mozRequestAnimationFrame, while Chrome and Safari have webkitRequestAnimationFrame).*/
     function tick() {
         requestAnimFrame(tick);
         drawScene();
@@ -271,7 +284,11 @@
 
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.enable(gl.DEPTH_TEST);
-
+        
+        /*The only change here is that instead of calling drawScene at the end to draw the scene,
+        we call a new function, tick. This is the function that needs to be called regularly; it 
+        updates the scene’s animation state (eg. the triangle has moved from being 81 degrees rotated to 82 degrees)
+        draws the scene, and also arranges for itself to be called again in an appropriate time.*/
         tick();
     }
 
