@@ -29,6 +29,10 @@
 <script type="text/javascript">
 
     var gl;
+    /* This function gets that “thing”, which is called a WebGL context, and does it by asking 
+    the canvas it is given for the context, using a standard context name. */
+    /* this is so that we can use it in the code that sets up the viewport and the 
+    perspective at the start of drawScene. Once that’s done, our GL context is set up.*/
     function initGL(canvas) {
         try {
             gl = canvas.getContext("experimental-webgl");
@@ -78,8 +82,16 @@
     }
 
 
+  
+    /*The reason that we’re introducing shaders in what is meant to be a simple WebGL example 
+    (they’re at least “intermediate” in OpenGL tutorials) is that we use them to get the WebGL system, 
+    hopefully running on the graphics card, to apply our model-view matrix and our projection matrix 
+    to our scene without us having to move around every point and every vertex in (relatively) slow JavaScript.   
+    This is incredibly useful, and worth the extra overhead.*/
+    /* And this is actually pretty useful, because (a) they run on the graphics card, so they
+    do what they do really quickly and (b) the kind of transformations they can do can be really
+    convenient even in simple examples like this.*/
     var shaderProgram;
-
     function initShaders() {
         var fragmentShader = getShader(gl, "shader-fs");
         var vertexShader = getShader(gl, "shader-vs");
@@ -87,6 +99,8 @@
         shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
         gl.attachShader(shaderProgram, fragmentShader);
+        /* A program is a bit of code that lives on the WebGL side of the system; 
+        you can look at it as a way of specifying something that can run on the graphics card. */
         gl.linkProgram(shaderProgram);
 
         if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
@@ -97,6 +111,10 @@
 
         shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
         gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+        /* you’ll see that the stuff we did associated the buffer with that attribute. 
+        You’ll see what that means in a moment; for now, let’s just note that we also 
+        use gl.enableVertexAttribArray to tell WebGL that we will want to provide values 
+        for the attribute using an array.*/
 
         shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
