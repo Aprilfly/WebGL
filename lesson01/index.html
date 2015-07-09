@@ -12,6 +12,14 @@
     void main(void) {
         gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
+/*The first thing to remember about these is that they are not written in JavaScript,
+even though the ancestry of the language is clearly similar.  In fact, they’re written in a 
+special shader language — called GLSL — that owes a lot to C (as, of course, does JavaScript)*/
+/*The first of the two, the fragment shader, does pretty much nothing; it has a bit of obligatory
+boilerplate code to tell the graphics card how precise we want it to be with floating-point numbers
+(medium precision is good because it’s required to be supported by all WebGL devices — highp for
+high precision doesn’t work on all mobile devices), then simply specifies that everything that 
+is drawn will be drawn in white. */
 </script>
 
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -23,6 +31,17 @@
     void main(void) {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
     }
+    /*It’s a vertex shader — which, you’ll remember, means that it’s a bit of graphics-card code 
+    that can do pretty much anything it wants with a vertex.  Associated with it, it has two uniform 
+    variables called uMVMatrix and uPMatrix.*/
+    /*Uniform variables are useful because they can be accessed from outside the shader — indeed, 
+    from outside its containing program, as you can probably remember from when we extracted their location in initShaders, and from the code we’ll look at next, 
+    where we set them to the values of the model-view and the projection matrices. You might want to think of the shader’s program as an object (in the object-oriented sense) and the uniform 
+    variables as fields. */
+    /*Now, the shader is called for every vertex, and the vertex is passed in to the shader code as aVertexPosition, 
+    thanks to the use of the vertexPositionAttribute in the drawScene, when we associated the attribute with the buffer.
+    The tiny bit of code in the shader’s main routine just multiplies the vertex’s position by the model-view and
+    the projection matrices, and pushes out the result as the final position of the vertex.*/
 </script>
 
 
@@ -45,7 +64,13 @@
         }
     }
 
-
+    /*
+    All we’re doing here is looking for an element in our HTML page that has an ID that matches a
+    parameter passed in, pulling out its contents, creating either a fragment or a vertex shader
+    based on its type and then passing it off to WebGL to be compiled into a form that can run on the graphics card. 
+    The code then handles any errors, and it’s done! Of course, we could just define shaders as strings
+    within our JavaScript code and not mess around with extracting them from the HTML — but by doing it this way,
+    we make them much easier to read, because they are defined as scripts in the web page, just as if they were JavaScript themselves.*/
     function getShader(gl, id) {
         var shaderScript = document.getElementById(id);
         if (!shaderScript) {
@@ -95,6 +120,9 @@
     function initShaders() {
         var fragmentShader = getShader(gl, "shader-fs");
         var vertexShader = getShader(gl, "shader-vs");
+        /*So, webGLStart called initShaders, which used getShader to load the fragment and 
+        the vertex shaders from scripts in the web page, so that they could be compiled and
+        passed over to WebGL and used later when rendering our 3D scene.*/
 
         shaderProgram = gl.createProgram();
         gl.attachShader(shaderProgram, vertexShader);
