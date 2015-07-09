@@ -7,6 +7,9 @@
 <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
+/*Here, after the floating-point precision boilerplate, we take the input varying 
+variable vColor containing the smoothly blended colour that has come out of the linear 
+interpolation, and just return it immediately as the colour for this fragment — that is, for this pixel.*/
     precision mediump float;
 
     varying vec4 vColor;
