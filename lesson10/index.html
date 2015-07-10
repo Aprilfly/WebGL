@@ -268,7 +268,13 @@
         document.getElementById("loadingtext").textContent = "";
     }
 
-
+    /*it’s very similar to the kind of thing we used to load the textures. We create an XMLHttpRequest object, 
+    which will handle all of the loading, and tell it to use an HTTP GET request
+    to get the file called world.txt from the same directory on the same server as the current page.
+    We specify a callback function to be updated at different stages of the download, and this in turn
+    calls a handleLoadedWorld when the XMLHttpRequest reports that its readyState is 4, which happens when the file
+    has been completely loaded. Once all this has been set up, we tell the XMLHttpRequest to start the process of getting
+    the file by calling its send method.*/
     function loadWorld() {
         var request = new XMLHttpRequest();
         request.open("GET", "world.txt");
@@ -385,7 +391,12 @@
 
     <canvas id="lesson10-canvas" style="border: none;" width="500" height="500"></canvas>
 
-    <div id="loadingtext">Loading world...</div>
+   
+    <div id="loadingtext">Loading world...
+    <!--So, we have a HTML DIV that holds some placeholder text to display while the world that we’re
+    going to display is loading; if the connection between my server and your machine was slow when you
+    loaded the demo above, you might have seen it.-->
+    </div>
 
     <br/>
     Use the cursor keys or WASD to run around, and <code>Page Up</code>/<code>Page Down</code> to
