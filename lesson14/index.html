@@ -241,7 +241,8 @@
         return degrees * Math.PI / 180;
     }
 
-
+    /*Instead of having initBuffers to create the WebGL buffers containing the various
+    per-vertex attributes that define the appearance of the teapot, we have two functions: handleLoadedTeapot and loadTeapot. */
     var teapotVertexPositionBuffer;
     var teapotVertexNormalBuffer;
     var teapotVertexTextureCoordBuffer;
@@ -275,7 +276,9 @@
         document.getElementById("loadingtext").textContent = "";
     }
 
-
+    /* we create a new XMLHttpRequest and use it to load the file Teapot.json. This will happen asynchronously,
+    so we attach a callback function that will be triggered when the process of loading the file reaches various
+    stages, and in the callback we do some stuff when the load reaches a readyState of 4, which means that it is fully loaded.*/
     function loadTeapot() {
         var request = new XMLHttpRequest();
         request.open("GET", "Teapot.json");
