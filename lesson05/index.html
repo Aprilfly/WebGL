@@ -17,6 +17,12 @@
     void main(void) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     }
+    /*So, we pick up the interpolated texture coordinates, and we have a variable of type sampler,
+    which is the shader’s way of representing the texture. In drawScene, our texture was bound to gl.TEXTURE0,
+    and the uniform uSampler was set to the value zero, so this sampler represents our texture.
+    All the shader does is use the function texture2D to get the appropriate colour from the texture using
+    the coordinates. Textures traditionally use s and t for their coordinates rather than x and y, and the
+    shader language supports these as aliases; we could just as easily used vTextureCoord.x and vTextureCoord.y.*/
 </script>
 
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -27,6 +33,11 @@
     uniform mat4 uPMatrix;
 
     varying vec2 vTextureCoord;
+    /*all we’re doing is accepting the TEXTURE coordinates (again, instead of the colour) as a per-vertex attribute, and passing it straight
+    out in a varying variable.Once this has been called for each vertex, WebGL will work out values for the fragments 
+    (which, remember, are basically just pixels) between vertices by using linear interpolation between the vertices 
+    — just as it did with the colours in lesson 2. So, a fragment half-way between vertices with texture coordinates (1, 0)
+    and (0, 0) will get the texture coordinates (0.5, 0), and one halfway between (0, 0) and (1, 1) will get (0.5, 0.5). */
 
 
     void main(void) {
@@ -37,6 +48,11 @@
 
 
 <script type="text/javascript">
+/*The trick to understanding how textures work is that they are a special way of setting the
+colour of a point on a 3D object. As you will remember from lesson 2, colours are specified by
+fragment shaders, so what we need to do is load THE IMAGE and send it over to the fragment shader.
+The fragment shader also needs to know which bit of the image to use for the fragment it’s working on,
+so we need to send that information over to it too.*/
 
     var gl;
 
@@ -117,14 +133,34 @@
         shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     }
 
-
+    /*The first thing we do is tell WebGL that our texture is the “current” texture. WebGL texture functions all
+    operate on this “current” texture instead of taking a texture as a parameter, and bindTexture is how we set 
+    the current one; it’s similar to the gl.bindBuffer pattern that we’ve looked at before.*/
     function handleLoadedTexture(texture) {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        /*Next, we tell WebGL that all images we load into textures need to be flipped vertically. We do this because
+        of a difference in coordinates; for our texture coordinates, we use coordinates that, like the ones you would
+        normally use in mathematics, increase as you move upwards along the vertical axis; this is consistent with the
+        X, Y, Z coordinates we’re using to specify our vertex positions. By contrast, most other COMPUTER graphics systems
+        — for example, the GIF format we use for the texture image — use coordinates that increase as you move downwards on 
+        the vertical axis. The horizontal axis is the same in both coordinate systems. This difference on the vertical axis
+        means that from the WebGL perspective, the GIF image we’re using for our texture is ALREADY flipped vertically, and
+        we need to “unflip” it.*/
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+        /*The next STEP is to upload our freshly-loaded image to the texture’s space in the graphics card using texImage2D.
+        The parameters are, in order, what kind of image we’re using, the level of detail, the format in which we want it to be stored on the graphics card 
+        , the size of each “channel” of THE IMAGE (that is, the datatype used to store red, green, or blue)
+        , and finally the image itself.**/
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        /*On to the next two lines: these specify SPECIAL scaling parameters for the texture. The first tells WebGL what to do
+        when the texture is filling up a large amount of the screen relative to the image size; in other words, it gives it hints on how to scale it up.
+        The second is the equivalent hint for how to scale it down. There are various kinds of scaling hints you can specify;
+        NEAREST is the least attractive of these, as it just says you should use the original image as-is, which means that it
+        will look very blocky when close-up. It has the advantage, however, of being really fast, even on SLOW machines.*/
         gl.bindTexture(gl.TEXTURE_2D, null);
+        /*Once this is done, we set the current texture to null; this is not strictly necessary, but is good practice; a kind of tidying up after yourself.*/
     }
 
 
@@ -300,9 +336,15 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
         gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
+       /*What’s happening here is somewhat complex. WebGL can DEAL with up to 32 textures during any given call to functions 
+       like gl.drawElements, and they’re NUMBERED from TEXTURE0 to TEXTURE31. What we’re doing is saying in the first two lines
+       that texture zero is the one we loaded earlier*/
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, neheTexture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
+        /* and then in the third line we’re passing the value zero up to a shader
+       uniform (which, like the other uniforms that we use for the matrices, we extract from the shader PROGRAM in initShaders); 
+       this tells the shader that we’re using texture zero.*/
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
         setMatrixUniforms();
