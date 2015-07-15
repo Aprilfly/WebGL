@@ -338,6 +338,9 @@
 
                 joggingAngle += elapsed * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
                 yPos = Math.sin(degToRad(joggingAngle)) / 20 + 0.4
+                /*joggingAngle is more interesting. The way we get our jogging effect as we move around is by making 
+                our Y position follow a sine wave about a central value at “head height” whenever we are not at rest. 
+                joggingAngle is the angle we’re pushing into the sine function in order to get our current position.*/
             }
 
             yaw += yawRate * elapsed;
