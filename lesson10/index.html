@@ -299,7 +299,11 @@
         mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
         mat4.identity(mvMatrix);
-
+        /*Putting it more mathemetically, we can simulate a camera that is at the position (x, y, z) and rotated
+        by a yaw of ψ and a pitch of θ by first rotating by -θ around the X axis, then by -ψ around the Y axis, and
+        then by moving to (-x, -y, -z). Once that’s done, we’ve put the model-view matrix in a state such that everything
+        drawn from then on can use world coordinates, and it will get automatically transformed to eye coordinates by the
+        magic of our matrix multiplication in the vertex shader.*/
         mat4.rotate(mvMatrix, degToRad(-pitch), [1, 0, 0]);
         mat4.rotate(mvMatrix, degToRad(-yaw), [0, 1, 0]);
         mat4.translate(mvMatrix, [-xPos, -yPos, -zPos]);
